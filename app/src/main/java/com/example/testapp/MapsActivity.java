@@ -76,6 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             askLocationPermission();
         }
+        GoogleMapUtil.initialize(this);
     }
 
     private void getLastLocation() {

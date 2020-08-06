@@ -1,10 +1,10 @@
 package com.example.testapp.model;
 
-public class Location {
+public class LocationObject {
     private double latitude;
     private double longitude;
 
-    public Location(double latitude, double longitude) {
+    public LocationObject(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
