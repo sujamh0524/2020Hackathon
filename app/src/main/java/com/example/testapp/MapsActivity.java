@@ -193,6 +193,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create();
         alertDialog.setTitle("Warning");
         alertDialog.setMessage("You are near disease hotspot areas.");
+        alertDialog.setIcon(R.drawable.custom_marker);
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -227,4 +228,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             notificationManager.createNotificationChannel(channel);
         }
     }
+
 }
