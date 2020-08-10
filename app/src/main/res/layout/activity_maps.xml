@@ -9,10 +9,13 @@
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="411dp"
-        android:layout_height="699dp"
-        tools:context=".MapsActivity"
-        tools:layout_editor_absoluteX="-3dp" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        map:layout_constraintBottom_toBottomOf="parent"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toTopOf="parent"
+        tools:context=".MapsActivity" />
 
     <Button
         android:id="@+id/scanBtn"
@@ -22,7 +25,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginBottom="50dp"
         android:onClick="onScanButtonClick"
-        android:text="Scan"
+        android:text="Navigate"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintStart_toStartOf="parent" />
 
