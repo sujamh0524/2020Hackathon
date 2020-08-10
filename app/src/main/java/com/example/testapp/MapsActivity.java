@@ -16,6 +16,8 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -84,6 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             askLocationPermission();
         }
         GoogleMapUtil.initialize(this);
+        initializeThresholdDropdown();
     }
 
     private void getLastLocation() {
@@ -226,5 +229,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    private void initializeThresholdDropdown() {
+        Spinner spinner = (Spinner) findViewById(R.id.thresholdDropdown);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.threshold_options, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
     }
 }

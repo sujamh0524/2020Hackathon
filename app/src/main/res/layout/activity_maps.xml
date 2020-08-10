@@ -3,7 +3,8 @@
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
 
 
     <fragment
@@ -17,6 +18,17 @@
         map:layout_constraintTop_toTopOf="parent"
         tools:context=".MapsActivity" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/buttonPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="600dp"
+        android:background="#D3BED3D6"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toTopOf="parent">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <Button
         android:id="@+id/scanBtn"
         android:layout_width="0dp"
@@ -24,8 +36,9 @@
         android:layout_marginStart="30dp"
         android:layout_marginLeft="30dp"
         android:layout_marginBottom="50dp"
+        android:background="#E7ECB9"
         android:onClick="onScanButtonClick"
-        android:text="Navigate"
+        android:text="Scan"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintStart_toStartOf="parent" />
 
@@ -36,9 +49,34 @@
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginBottom="50dp"
+        android:background="#ECD1DA"
         android:text="Exit"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintEnd_toEndOf="parent" />
+
+    <Spinner
+        android:id="@+id/thresholdDropdown"
+        android:layout_width="150dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="50dp"
+        android:dropDownWidth="wrap_content"
+        map:layout_constraintBottom_toTopOf="@+id/exitBtn"
+        map:layout_constraintEnd_toEndOf="@+id/exitBtn"
+        map:layout_constraintTop_toTopOf="@+id/buttonPanel"
+        map:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/thresholdLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="65dp"
+        android:text="Distance Threshold:"
+        android:textSize="14sp"
+        map:layout_constraintBottom_toTopOf="@+id/exitBtn"
+        map:layout_constraintEnd_toStartOf="@+id/thresholdDropdown" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
