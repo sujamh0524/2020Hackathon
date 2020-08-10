@@ -22,7 +22,7 @@
         android:id="@+id/buttonPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="600dp"
+        android:layout_marginTop="525dp"
         android:background="#D3BED3D6"
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent">
