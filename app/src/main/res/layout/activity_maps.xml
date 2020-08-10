@@ -50,6 +50,7 @@
         android:layout_marginRight="30dp"
         android:layout_marginBottom="50dp"
         android:background="#ECD1DA"
+        android:onClick="onExitButtonClick"
         android:text="Exit"
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintEnd_toEndOf="parent" />
