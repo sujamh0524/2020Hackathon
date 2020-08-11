@@ -22,6 +22,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -368,5 +369,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // Do nothing
             }
         });
+    }
+
+    public void closeHelpContent(View view) {
+        ConstraintLayout helpContentPanel = findViewById(R.id.helpContent);
+        helpContentPanel.setVisibility(View.GONE);
     }
 }
