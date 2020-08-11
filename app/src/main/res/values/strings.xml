@@ -9,4 +9,8 @@
         <item>4 km</item>
         <item>5 km</item>
     </string-array>
+    <string name="help_content_body">
+        1. Select max search distance in the Range dropdown.\n\n
+        2. Click Search to start finding hotspots near your location.
+    </string>
 </resources>

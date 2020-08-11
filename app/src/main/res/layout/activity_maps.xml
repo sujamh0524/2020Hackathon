@@ -24,7 +24,7 @@
         android:id="@+id/buttonPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="525dp"
+        android:layout_marginTop="590dp"
         android:background="#D3BED3D6"
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent">
@@ -56,8 +56,8 @@
 
         <Spinner
             android:id="@+id/thresholdDropdown"
-            android:layout_width="150dp"
-            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
             android:layout_marginLeft="30dp"
             android:layout_marginBottom="55dp"
@@ -80,24 +80,54 @@
         tools:visibility="invisible" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/topPanel"
+        android:id="@+id/helpContent"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#B9B8B0B0"
-        map:layout_constraintStart_toStartOf="parent"
-        map:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent"
+        android:layout_marginBottom="450dp"
+        android:background="#FFFFFF"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:visibility="visible"
+        map:layout_constraintBottom_toBottomOf="parent">
 
         <ImageButton
-            android:id="@+id/exitBtn"
+            android:id="@+id/closeHelpBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginRight="5dp"
-            android:onClick="onExitButtonClick"
-            android:src="@drawable/exit_button"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:onClick="closeHelpContent"
+            android:src="@drawable/close_button"
             map:layout_constraintEnd_toEndOf="parent"
             map:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/headerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="33dp"
+            android:layout_marginLeft="33dp"
+            android:layout_marginTop="15dp"
+            android:text="How to Use HealthNav"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            map:layout_constraintStart_toStartOf="parent"
+            map:layout_constraintTop_toBottomOf="@+id/closeHelpBtn" />
+
+        <TextView
+            android:id="@+id/bodyText"
+            android:layout_width="308dp"
+            android:layout_height="169dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginTop="25dp"
+            android:text="@string/help_content_body"
+            android:textSize="18sp"
+            map:layout_constraintStart_toStartOf="parent"
+            map:layout_constraintTop_toBottomOf="@+id/headerText" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
