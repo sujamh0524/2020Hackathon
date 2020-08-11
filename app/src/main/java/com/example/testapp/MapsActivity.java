@@ -16,6 +16,9 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -24,7 +27,11 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.testapp.model.AreaInformation;
+import com.example.testapp.service.MapsService;
 import com.example.testapp.util.GoogleMapUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -42,13 +49,15 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
-    private Geocoder geocoder;
-    private LocationManager locationManager;
-    private Location location;
     private static final String TAG = MapsActivity.class.getName();
+
+    private GoogleMap mMap;
     private int LOCATION_REQUEST_CODE = 10001;
     FusedLocationProviderClient fusedLocationProviderClient;
     private LocationRequest locationRequest;
@@ -77,7 +86,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onStart() {
         super.onStart();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) {
             getLastLocation();
             startLocationUpdates();
         } else {
@@ -87,7 +97,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void getLastLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -124,9 +136,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 Log.d(TAG, "askLocationPermission: you should show an alert dialog....");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET}, LOCATION_REQUEST_CODE);
             } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET}, LOCATION_REQUEST_CODE);
             }
         }
     }
@@ -155,11 +167,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d(TAG, "on Location Result: " + locationResult.getLastLocation());
             LatLng latLng = new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude());
             if(mMap != null){
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+
                 if(thisMarker != null) {
                     thisMarker.setPosition(latLng);
                     thisMarker.setTitle("Latitude: " + locationResult.getLastLocation().getLatitude() + " Longitude: " + locationResult.getLastLocation().getLongitude());
                 }else {
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
                     thisMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Latitude: " + locationResult.getLastLocation().getLatitude() + " Longitude: " + locationResult.getLastLocation().getLongitude()).icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
                 }
             }
@@ -168,8 +181,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        }else {
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         }
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
     private void stopLocationUpdates() {
@@ -188,7 +202,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onScanButtonClick(View view) {
         Log.d(TAG, "TODO call web service...");
         // TODO Call web service and parse json
-        GoogleMapUtil.populateLocationMarkers(mMap);
+        Button scanButton = findViewById(R.id.scanBtn);
+        TextView loadingText = findViewById(R.id.loadingText);
+        loadingText.setVisibility(View.VISIBLE);
+        scanButton.setEnabled(false);
+        MapsService mapsService = new MapsService();
+        List<AreaInformation> areaInformations = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        if(thisMarker != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(thisMarker.getPosition(), 18));
+            mapsService.execute(thisMarker.getPosition());
+            try {
+                areaInformations.addAll(mapsService.get());
+                Log.d("thisTest", objectMapper.writeValueAsString(areaInformations));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+        GoogleMapUtil.populateLocationMarkers(mMap, areaInformations);
 
         AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create();
         alertDialog.setTitle("Warning");
@@ -211,6 +249,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         int notificationId = 12345;
         notificationManager.notify(notificationId, builder.build());
+
+        loadingText.setVisibility(View.INVISIBLE);
+        scanButton.setEnabled(true);
     }
 
     private void createNotificationChannel() {
