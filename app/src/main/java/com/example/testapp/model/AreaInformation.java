@@ -1,6 +1,5 @@
 package com.example.testapp.model;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 
@@ -14,7 +13,7 @@ public class AreaInformation {
     private String area;
     private String baranggay;
     private String city;
-    private int numCases;
+    private int activeCovidCases;
     private Date createdDate;
     private Date updatedDate;
 
@@ -66,12 +65,12 @@ public class AreaInformation {
         this.city = city;
     }
 
-    public int getNumCases() {
-        return numCases;
+    public int getActiveCovidCases() {
+        return activeCovidCases;
     }
 
-    public void setNumCases(int numCases) {
-        this.numCases = numCases;
+    public void setActiveCovidCases(int activeCovidCases) {
+        this.activeCovidCases = activeCovidCases;
     }
 
     public String toString(){

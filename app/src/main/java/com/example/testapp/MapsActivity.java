@@ -221,7 +221,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ObjectMapper objectMapper = new ObjectMapper();
         if(thisMarker != null) {
             LocationRequestModel locationRequestModel = new LocationRequestModel(thisMarker.getPosition(), dist);
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(thisMarker.getPosition(), 18));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(thisMarker.getPosition(), 13));
             mapsService.execute(locationRequestModel);
             try {
                 areaInformations.addAll(mapsService.get());
@@ -250,7 +250,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //alert
             alertDialog.setIcon(R.drawable.custom_marker);
             alertDialog.setTitle("Warning");
-            alertDialog.setMessage("You have " + numAreas + " number of hotspots within " + dist + " meters.");
+            alertDialog.setMessage("There are " + numAreas + " hotspot(s) within " + dist + " meters. ");
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -269,7 +269,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             int notificationId = 12345;
             notificationManager.notify(notificationId, builder.build());
         } else {
-            alertDialog.setMessage("You are in a safe place!");
+            alertDialog.setMessage("You are safe within "+ dist +" meters.");
             alertDialog.show();
         }
 
@@ -301,13 +301,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Exit button click listener
      */
-    public void onExitButtonClick(View view) {
+    /*public void onExitButtonClick(View view) {
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
-    }
+    }*/
 
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
