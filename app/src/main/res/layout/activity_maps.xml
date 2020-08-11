@@ -24,7 +24,7 @@
         android:id="@+id/buttonPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="575dp"
+        android:layout_marginTop="590dp"
         android:background="#D3BED3D6"
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent">
@@ -56,8 +56,8 @@
 
         <Spinner
             android:id="@+id/thresholdDropdown"
-            android:layout_width="150dp"
-            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
             android:layout_marginLeft="30dp"
             android:layout_marginBottom="55dp"
@@ -107,7 +107,7 @@
         android:id="@+id/helpContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="400dp"
+        android:layout_marginBottom="450dp"
         android:background="#FFFFFF"
         android:clickable="true"
         android:focusable="true"
@@ -141,12 +141,12 @@
 
         <TextView
             android:id="@+id/bodyText"
-            android:text="@string/help_content_body"
             android:layout_width="308dp"
             android:layout_height="169dp"
             android:layout_marginStart="35dp"
             android:layout_marginLeft="35dp"
-            android:layout_marginTop="52dp"
+            android:layout_marginTop="25dp"
+            android:text="@string/help_content_body"
             android:textSize="18sp"
             map:layout_constraintStart_toStartOf="parent"
             map:layout_constraintTop_toBottomOf="@+id/headerText" />
