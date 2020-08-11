@@ -53,9 +53,9 @@ public class GoogleMapUtil {
             circleOptions.fillColor(Color.argb(32, 255, 0 , 0));
             circleOptions.radius(200);
             MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("Cases: " + l.getNumCases() + " City: " + l.getCity() +  " Barangay: " + l.getBaranggay());
-
             Circle circle = mMap.addCircle(circleOptions);
             Marker marker = mMap.addMarker(markerOptions);
+
             hotspotMarkerList.add(marker);
             hotspotCircleList.add(circle);
         }
