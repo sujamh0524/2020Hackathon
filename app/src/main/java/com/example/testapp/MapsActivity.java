@@ -9,16 +9,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -33,6 +30,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.testapp.model.AreaInformation;
+import com.example.testapp.model.LocationRequestModel;
 import com.example.testapp.service.MapsService;
 import com.example.testapp.util.GoogleMapUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -213,14 +211,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // TODO Call web service and parse json
         Button scanButton = findViewById(R.id.scanBtn);
         TextView loadingText = findViewById(R.id.loadingText);
+        Spinner spinner = findViewById(R.id.thresholdDropdown);
+        int dist = getDistance(spinner.getSelectedItem().toString());
+
         loadingText.setVisibility(View.VISIBLE);
         scanButton.setEnabled(false);
         MapsService mapsService = new MapsService();
         List<AreaInformation> areaInformations = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
         if(thisMarker != null) {
+            LocationRequestModel locationRequestModel = new LocationRequestModel(thisMarker.getPosition(), dist);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(thisMarker.getPosition(), 18));
-            mapsService.execute(thisMarker.getPosition());
+            mapsService.execute(locationRequestModel);
             try {
                 areaInformations.addAll(mapsService.get());
                 Log.d("thisTest", objectMapper.writeValueAsString(areaInformations));
@@ -248,7 +250,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //alert
             alertDialog.setIcon(R.drawable.custom_marker);
             alertDialog.setTitle("Warning");
-            alertDialog.setMessage("You have " + numAreas + " number of hotspots within <m> meters.");
+            alertDialog.setMessage("You have " + numAreas + " number of hotspots within " + dist + " meters.");
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -276,6 +278,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         loadingText.setVisibility(View.INVISIBLE);
         scanButton.setEnabled(true);
     }
+
+    private int getDistance(String dropDownText){
+        int i = 0;
+        if(dropDownText.equalsIgnoreCase("500 m")){
+            i = 500;
+        } else if (dropDownText.equalsIgnoreCase("1 km")){
+            i = 1000;
+        } else if (dropDownText.equalsIgnoreCase("2 km")){
+            i = 2000;
+        } else if (dropDownText.equalsIgnoreCase("3 km")){
+            i = 3000;
+        } else if (dropDownText.equalsIgnoreCase("4 km")){
+            i = 4000;
+        } else if (dropDownText.equalsIgnoreCase("5 km")){
+            i = 5000;
+        }
+        return i;
+    }
+
 
     /**
      * Exit button click listener
