@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">TimApp</string>
     <string name="title_activity_maps">Map</string>
+    <string-array name="threshold_options">
+        <item>500 m</item>
+        <item>1 km</item>
+        <item>3 km</item>
+        <item>5 km</item>
+    </string-array>
 </resources>

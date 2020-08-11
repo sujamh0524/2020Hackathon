@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,6 +20,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -48,10 +53,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -63,6 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationRequest locationRequest;
     private Marker thisMarker;
     Bitmap bitmap;
+    private static final Map<String, Integer> DISTANCE_THRESHOLD_MAPPING = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             askLocationPermission();
         }
         GoogleMapUtil.initialize(this);
+        initializeThresholdDropdown();
     }
 
     private void getLastLocation() {
@@ -254,6 +263,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         scanButton.setEnabled(true);
     }
 
+    /**
+     * Exit button click listener
+     */
+    public void onExitButtonClick(View view) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }
+
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -270,4 +290,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    private void initializeDropdownValueMapping() {
+        String[] dropdownValues = getResources().getStringArray(R.array.threshold_options);
+        for (String displayValue : dropdownValues) {
+            int valueInMeters = 0;
+            String cleanString = null;
+            final String KM = "km";
+            final String M = "m";
+            if (displayValue.contains(KM)) {
+                cleanString = displayValue.replace(KM, "").trim();
+                valueInMeters = Integer.parseInt(cleanString) * 1000;
+            } else if (displayValue.contains(M)) {
+                cleanString = displayValue.replace(M, "").trim();
+                valueInMeters = Integer.parseInt(cleanString);
+            }
+            DISTANCE_THRESHOLD_MAPPING.put(displayValue, valueInMeters);
+        }
+    }
+
+    private void initializeThresholdDropdown() {
+        Spinner spinner = (Spinner) findViewById(R.id.thresholdDropdown);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.threshold_options, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+
+        initializeDropdownValueMapping();
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
+                String selectedThreshold = (String) adapterView.getItemAtPosition(pos);
+                Log.d(TAG, "selectedThreshold = " + selectedThreshold);
+                Log.d(TAG, "value in meters = " + DISTANCE_THRESHOLD_MAPPING.get(selectedThreshold));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                // Do nothing
+            }
+        });
+    }
 }
