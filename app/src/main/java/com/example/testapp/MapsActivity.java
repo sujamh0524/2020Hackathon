@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -296,18 +295,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             i = 5000;
         }
         return i;
-    }
-
-
-    /**
-     * Exit button click listener
-     */
-    public void onExitButtonClick(View view) {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
     }
 
     private void createNotificationChannel() {
