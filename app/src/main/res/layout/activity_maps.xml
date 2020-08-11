@@ -71,6 +71,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Loading...."
+        android:visibility="invisible"
         map:layout_constraintEnd_toStartOf="@+id/map"
         map:layout_constraintHorizontal_bias="0.501"
         map:layout_constraintStart_toEndOf="@+id/map"
