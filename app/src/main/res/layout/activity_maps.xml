@@ -55,6 +55,19 @@
         map:layout_constraintBottom_toBottomOf="parent"
         map:layout_constraintEnd_toEndOf="parent" />
 
+
+    <TextView
+        android:id="@+id/loadingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Loading...."
+        map:layout_constraintEnd_toStartOf="@+id/map"
+        map:layout_constraintHorizontal_bias="0.501"
+        map:layout_constraintStart_toEndOf="@+id/map"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="325dp"
+        tools:visibility="invisible" />
+
     <Spinner
         android:id="@+id/thresholdDropdown"
         android:layout_width="150dp"
