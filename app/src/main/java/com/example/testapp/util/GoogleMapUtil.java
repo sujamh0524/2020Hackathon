@@ -34,7 +34,7 @@ public class GoogleMapUtil {
     }
 
     // TODO Add parameter for Area POJO parsed from json
-    public static void populateLocationMarkers(GoogleMap mMap, List<AreaInformation> areaInformations) {
+    public static int populateLocationMarkers(GoogleMap mMap, List<AreaInformation> areaInformations) {
 
         /*List<LocationObject> dummyLocations = new ArrayList<>();
         LocationObject loc1 = new LocationObject(14.5611721636, 121.021212863);
@@ -59,6 +59,8 @@ public class GoogleMapUtil {
             hotspotMarkerList.add(marker);
             hotspotCircleList.add(circle);
         }
+
+        return areaInformations.size();
     }
 
     public static void clearExistingMarkers() {
