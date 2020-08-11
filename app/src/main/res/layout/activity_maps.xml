@@ -24,7 +24,7 @@
         android:id="@+id/buttonPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="600dp"
+        android:layout_marginTop="525dp"
         android:background="#D3BED3D6"
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent">
@@ -65,6 +65,18 @@
             map:layout_constraintBottom_toBottomOf="parent"
             map:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/loadingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Loading...."
+        map:layout_constraintEnd_toStartOf="@+id/map"
+        map:layout_constraintHorizontal_bias="0.501"
+        map:layout_constraintStart_toEndOf="@+id/map"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="325dp"
+        tools:visibility="invisible" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topPanel"
