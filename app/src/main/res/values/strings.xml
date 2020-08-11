@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">TimApp</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="app_name">HealthNav</string>
+    <string name="title_activity_maps">HealthNav</string>
     <string-array name="threshold_options">
         <item>500 m</item>
         <item>1 km</item>

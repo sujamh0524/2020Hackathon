@@ -235,29 +235,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-        GoogleMapUtil.populateLocationMarkers(mMap, areaInformations);
+        int numAreas = GoogleMapUtil.populateLocationMarkers(mMap, areaInformations);
 
         AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create();
-        alertDialog.setTitle("Warning");
-        alertDialog.setMessage("You are near disease hotspot areas.");
-        alertDialog.setIcon(R.drawable.custom_marker);
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 });
-        alertDialog.show();
+        if(numAreas > 0) {
+            //alert
+            alertDialog.setIcon(R.drawable.custom_marker);
+            alertDialog.setTitle("Warning");
+            alertDialog.setMessage("You have " + numAreas + " number of hotspots within <m> meters.");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
+            //notifications
+            createNotificationChannel();
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "my_channel")
+                    .setSmallIcon(R.drawable.warning_icon)
+                    .setContentTitle("Warning")
+                    .setContentText("You are near disease hotspot areas.")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            int notificationId = 12345;
+            notificationManager.notify(notificationId, builder.build());
+        } else {
+            alertDialog.setMessage("You are in a safe place!");
+            alertDialog.show();
+        }
 
-        createNotificationChannel();
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "my_channel")
-                .setSmallIcon(R.drawable.warning_icon)
-                .setContentTitle("Warning")
-                .setContentText("You are near disease hotspot areas.")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        int notificationId = 12345;
-        notificationManager.notify(notificationId, builder.build());
+
 
         loadingText.setVisibility(View.INVISIBLE);
         scanButton.setEnabled(true);
