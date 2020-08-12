@@ -6,6 +6,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -29,10 +31,12 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.testapp.constant.AppConstants;
 import com.example.testapp.model.AreaInformation;
 import com.example.testapp.model.LocationRequestModel;
 import com.example.testapp.model.ZoomAndDistanceModel;
 import com.example.testapp.service.MapsService;
+import com.example.testapp.util.DatabaseHelper;
 import com.example.testapp.util.GoogleMapUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,8 +57,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,10 +84,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker thisMarker;
     Bitmap bitmap;
     private static final Map<String, Integer> DISTANCE_THRESHOLD_MAPPING = new HashMap<>();
+    private DatabaseHelper db;
+    private Drawer navDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        db = new DatabaseHelper(this);
+
+        SQLiteDatabase database = db.getWritableDatabase();
+        db.onUpgrade(database,0,0);
+        //show db data
+        Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day')", null);
+        while(cursor.moveToNext()){
+            Log.d("ID", cursor.getString(0));
+            Log.d("Longitude", ""+cursor.getDouble(1));
+            Log.d("Latitude", ""+cursor.getDouble(2));
+            Log.d("DISTANCE", cursor.getString(3));
+            Log.d("CREATED_DATE", cursor.getString(4));
+            Log.d("RESPONSE", cursor.getString(5));
+        }
+
+
+
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -89,8 +121,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.usericon);
         Bitmap b = bitmapdraw.getBitmap();
         bitmap = Bitmap.createScaledBitmap(b, 60, 100, false);
+
+        new DrawerBuilder().withActivity(this).build();
+        //if you want to update the items at a later time it is recommended to keep it in a variable
+        PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(AppConstants.MAP_MENU).withName("Map");
+        PrimaryDrawerItem item2 = new PrimaryDrawerItem().withIdentifier(AppConstants.LOCATION_HISTORY_MENU).withName("Location History");
+
+        //create the drawer
+        navDrawer = new DrawerBuilder()
+                .withActivity(this)
+                .addDrawerItems(
+                        item1,
+                        new DividerDrawerItem(),
+                        item2
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        setVisibileComponents((int) drawerItem.getIdentifier());
+                        return false;
+                    }
+                })
+                .build();
     }
 
+    private void addData(double longitude, double latitude, int distance, Date date, String response){
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        boolean isInserted = db.insertData(longitude, latitude, distance, df.format(date), response);
+        if(isInserted){
+            Log.d("addData", "DATA INSERTED");
+        } else {
+            Log.d("addData", "DATA NOT INSERTED");
+        }
+    }
 
     @Override
     protected void onStart() {
@@ -277,7 +340,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-
+        try {
+            addData(thisMarker.getPosition().longitude, thisMarker.getPosition().latitude, zoomAndDistanceModel.getDistance(), new Date(), objectMapper.writeValueAsString(areaInformations));
+        } catch (JsonProcessingException e) {
+            Log.d("onScanButtonClick", "PARSING OF CLOB FAILED");
+        }
         loadingText.setVisibility(View.INVISIBLE);
         scanButton.setEnabled(true);
     }
@@ -378,5 +445,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void closeHelpContent(View view) {
         ConstraintLayout helpContentPanel = findViewById(R.id.helpContent);
         helpContentPanel.setVisibility(View.GONE);
+    }
+
+    public void openDrawer(View view) {
+        navDrawer.openDrawer();
+    }
+
+    public void setVisibileComponents(int selectedMenu) {
+        View mainContent = findViewById(R.id.mainContent);
+        View locationHistoryContent = findViewById(R.id.locationHistoryContent);
+        switch (selectedMenu) {
+            case AppConstants.MAP_MENU:
+                mainContent.setVisibility(View.VISIBLE);
+                locationHistoryContent.setVisibility(View.GONE);
+                break;
+            case AppConstants.LOCATION_HISTORY_MENU:
+                locationHistoryContent.setVisibility(View.VISIBLE);
+                mainContent.setVisibility(View.GONE);
+                break;
+        }
     }
 }
