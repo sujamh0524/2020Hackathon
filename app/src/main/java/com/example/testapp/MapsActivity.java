@@ -93,7 +93,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         db = new DatabaseHelper(this);
 
         SQLiteDatabase database = db.getWritableDatabase();
-        db.onUpgrade(database,0,0);
         //show db data
         Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day')", null);
         while(cursor.moveToNext()){
@@ -287,13 +286,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(thisMarker != null) {
             LocationRequestModel locationRequestModel = new LocationRequestModel(thisMarker.getPosition(), zoomAndDistanceModel.getDistance());
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(thisMarker.getPosition(), zoomAndDistanceModel.getZoom()));
-            CircleOptions circleOptions = new CircleOptions();
-            circleOptions.center(thisMarker.getPosition());
-            circleOptions.strokeWidth(4);
-            circleOptions.strokeColor(Color.argb(255, 0, 255 , 0));
-            circleOptions.fillColor(Color.argb(32, 0, 255 , 0));
-            circleOptions.radius(zoomAndDistanceModel.getDistance());
-            mMap.addCircle(circleOptions);
             mapsService.execute(locationRequestModel);
             try {
                 areaInformations.addAll(mapsService.get());
