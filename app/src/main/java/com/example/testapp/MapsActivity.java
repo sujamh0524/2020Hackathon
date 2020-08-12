@@ -225,13 +225,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(thisMarker != null) {
             LocationRequestModel locationRequestModel = new LocationRequestModel(thisMarker.getPosition(), zoomAndDistanceModel.getDistance());
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(thisMarker.getPosition(), zoomAndDistanceModel.getZoom()));
-            CircleOptions circleOptions = new CircleOptions();
-            circleOptions.center(thisMarker.getPosition());
-            circleOptions.strokeWidth(4);
-            circleOptions.strokeColor(Color.argb(255, 0, 255 , 0));
-            circleOptions.fillColor(Color.argb(32, 0, 255 , 0));
-            circleOptions.radius(zoomAndDistanceModel.getDistance());
-            mMap.addCircle(circleOptions);
             mapsService.execute(locationRequestModel);
             try {
                 areaInformations.addAll(mapsService.get());
