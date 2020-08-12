@@ -31,6 +31,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.testapp.constant.AppConstants;
 import com.example.testapp.model.AreaInformation;
 import com.example.testapp.model.LocationRequestModel;
 import com.example.testapp.model.ZoomAndDistanceModel;
@@ -123,8 +124,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         new DrawerBuilder().withActivity(this).build();
         //if you want to update the items at a later time it is recommended to keep it in a variable
-        PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withName("Map");
-        PrimaryDrawerItem item2 = new PrimaryDrawerItem().withIdentifier(2).withName("Location History");
+        PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(AppConstants.MAP_MENU).withName("Map");
+        PrimaryDrawerItem item2 = new PrimaryDrawerItem().withIdentifier(AppConstants.LOCATION_HISTORY_MENU).withName("Location History");
 
         //create the drawer
         navDrawer = new DrawerBuilder()
@@ -137,7 +138,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-//                        setContentView(R.layout.location_history);
+                        setVisibileComponents((int) drawerItem.getIdentifier());
                         return false;
                     }
                 })
@@ -455,5 +456,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void openDrawer(View view) {
         navDrawer.openDrawer();
+    }
+
+    public void setVisibileComponents(int selectedMenu) {
+        View mainContent = findViewById(R.id.mainContent);
+        View locationHistoryContent = findViewById(R.id.locationHistoryContent);
+        switch (selectedMenu) {
+            case AppConstants.MAP_MENU:
+                mainContent.setVisibility(View.VISIBLE);
+                locationHistoryContent.setVisibility(View.GONE);
+                break;
+            case AppConstants.LOCATION_HISTORY_MENU:
+                locationHistoryContent.setVisibility(View.VISIBLE);
+                mainContent.setVisibility(View.GONE);
+                break;
+        }
     }
 }
