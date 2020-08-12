@@ -11,9 +11,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.testapp.R;
+import com.example.testapp.adapter.CustomTableDataAdapter;
 
 import de.codecrafters.tableview.TableView;
-import de.codecrafters.tableview.toolkit.SimpleTableDataAdapter;
 import de.codecrafters.tableview.toolkit.SimpleTableHeaderAdapter;
 
 public class LocationHistoryFragment extends Fragment {
@@ -34,11 +34,12 @@ public class LocationHistoryFragment extends Fragment {
 
         TableView<String[]> tableView = (TableView<String[]>) rootView.findViewById(R.id.table_view);
         tableView.setHeaderBackgroundColor(Color.parseColor("#2ecc71"));
-        tableView.setHeaderAdapter(new SimpleTableHeaderAdapter(getContext(), columnHeaders));
+        SimpleTableHeaderAdapter tableHeaderAdapter = new SimpleTableHeaderAdapter(getContext(), columnHeaders);
+        tableHeaderAdapter.setPaddingRight(0);
+        tableView.setHeaderAdapter(tableHeaderAdapter);
         tableView.setColumnCount(2);
 
-        SimpleTableDataAdapter tableDataAdapter = new SimpleTableDataAdapter(getContext(), sampleData);
-        tableDataAdapter.setTextSize(16);
+        CustomTableDataAdapter tableDataAdapter = new CustomTableDataAdapter(getContext(), sampleData);
         tableDataAdapter.setPaddingRight(0);
         tableView.setDataAdapter(tableDataAdapter);
 
