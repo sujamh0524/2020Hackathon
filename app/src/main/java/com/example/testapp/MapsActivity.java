@@ -6,6 +6,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -34,6 +36,7 @@ import com.example.testapp.model.AreaInformation;
 import com.example.testapp.model.LocationRequestModel;
 import com.example.testapp.model.ZoomAndDistanceModel;
 import com.example.testapp.service.MapsService;
+import com.example.testapp.util.DatabaseHelper;
 import com.example.testapp.util.GoogleMapUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,7 +63,10 @@ import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,11 +84,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker thisMarker;
     Bitmap bitmap;
     private static final Map<String, Integer> DISTANCE_THRESHOLD_MAPPING = new HashMap<>();
+    private DatabaseHelper db;
     private Drawer navDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        db = new DatabaseHelper(this);
+
+        SQLiteDatabase database = db.getWritableDatabase();
+        db.onUpgrade(database,0,0);
+        //show db data
+        Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day')", null);
+        while(cursor.moveToNext()){
+            Log.d("ID", cursor.getString(0));
+            Log.d("Longitude", ""+cursor.getDouble(1));
+            Log.d("Latitude", ""+cursor.getDouble(2));
+            Log.d("DISTANCE", cursor.getString(3));
+            Log.d("CREATED_DATE", cursor.getString(4));
+            Log.d("RESPONSE", cursor.getString(5));
+        }
+
+
 
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -121,6 +145,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .build();
     }
 
+    private void addData(double longitude, double latitude, int distance, Date date, String response){
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        boolean isInserted = db.insertData(longitude, latitude, distance, df.format(date), response);
+        if(isInserted){
+            Log.d("addData", "DATA INSERTED");
+        } else {
+            Log.d("addData", "DATA NOT INSERTED");
+        }
+    }
 
     @Override
     protected void onStart() {
@@ -314,7 +347,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-
+        try {
+            addData(thisMarker.getPosition().longitude, thisMarker.getPosition().latitude, zoomAndDistanceModel.getDistance(), new Date(), objectMapper.writeValueAsString(areaInformations));
+        } catch (JsonProcessingException e) {
+            Log.d("onScanButtonClick", "PARSING OF CLOB FAILED");
+        }
         loadingText.setVisibility(View.INVISIBLE);
         scanButton.setEnabled(true);
     }
