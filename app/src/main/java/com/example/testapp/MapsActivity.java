@@ -6,6 +6,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -55,6 +57,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -80,6 +84,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = new DatabaseHelper(this);
+
+        SQLiteDatabase database = db.getWritableDatabase();
+        db.onUpgrade(database,0,0);
+        //show db data
+        Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day')", null);
+        while(cursor.moveToNext()){
+            Log.d("ID", cursor.getString(0));
+            Log.d("Longitude", ""+cursor.getDouble(1));
+            Log.d("Latitude", ""+cursor.getDouble(2));
+            Log.d("DISTANCE", cursor.getString(3));
+            Log.d("CREATED_DATE", cursor.getString(4));
+            Log.d("RESPONSE", cursor.getString(5));
+        }
+
+
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -95,8 +114,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         bitmap = Bitmap.createScaledBitmap(b, 60, 100, false);
     }
 
-    private void addData(double longitude, double latitude, Date date, String response){
-        boolean isInserted = db.insertData(longitude, latitude, date, response);
+    private void addData(double longitude, double latitude, int distance, Date date, String response){
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        boolean isInserted = db.insertData(longitude, latitude, distance, df.format(date), response);
         if(isInserted){
             Log.d("addData", "DATA INSERTED");
         } else {
@@ -297,7 +317,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         try {
-            addData(thisMarker.getPosition().longitude, thisMarker.getPosition().longitude, new Date(), objectMapper.writeValueAsString(areaInformations));
+            addData(thisMarker.getPosition().longitude, thisMarker.getPosition().latitude, zoomAndDistanceModel.getDistance(), new Date(), objectMapper.writeValueAsString(areaInformations));
         } catch (JsonProcessingException e) {
             Log.d("onScanButtonClick", "PARSING OF CLOB FAILED");
         }

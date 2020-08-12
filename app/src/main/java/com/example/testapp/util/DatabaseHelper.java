@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -16,8 +17,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_1 = "ID";
     public static final String COL_2 = "LONGITUDE";
     public static final String COL_3 = "LATITUDE";
-    public static final String COL_4 = "CREATED_DATE";
-    public static final String COL_5 = "RESPONSE";
+    public static final String COL_4 = "DISTANCE";
+    public static final String COL_5 = "CREATED_DATE";
+    public static final String COL_6 = "RESPONSE";
 
 
     public DatabaseHelper(@Nullable Context context) {
@@ -26,23 +28,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL("CREATE TABLE " + TABLE_NAME + "(ID INTEGER PRIMARY KEY AUTOINCREMENT,LONGITUDE REAL,LATITUDE REAL,CREATED_DATE TEXT,RESPONSE CLOB)");
+        public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        sqLiteDatabase.execSQL("CREATE TABLE " + TABLE_NAME + "(ID INTEGER PRIMARY KEY AUTOINCREMENT,LONGITUDE REAL,LATITUDE REAL,DISTANCE REAL,CREATED_DATE DATE,RESPONSE CLOB)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        Log.d("onUpgrade", "UPDATE DB");
         onCreate(sqLiteDatabase);
     }
 
-    public boolean insertData(double longitude, double latitude, Date date, String response){
+    public boolean insertData(double longitude, double latitude, int distance, String date, String response){
         boolean returnBoolean = false;
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("LONGITUDE", longitude);
         contentValues.put("LATITUDE", latitude);
-        contentValues.put("CREATED_DATE", String.valueOf(date));
+        contentValues.put("DISTANCE", distance);
+        contentValues.put("CREATED_DATE", date);
         contentValues.put("RESPONSE", response);
         long temp = db.insert(TABLE_NAME, null, contentValues);
         if(temp != -1){
