@@ -33,6 +33,7 @@ import com.example.testapp.model.AreaInformation;
 import com.example.testapp.model.LocationRequestModel;
 import com.example.testapp.model.ZoomAndDistanceModel;
 import com.example.testapp.service.MapsService;
+import com.example.testapp.util.DatabaseHelper;
 import com.example.testapp.util.GoogleMapUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,6 +56,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,10 +74,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker thisMarker;
     Bitmap bitmap;
     private static final Map<String, Integer> DISTANCE_THRESHOLD_MAPPING = new HashMap<>();
+    private DatabaseHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db = new DatabaseHelper(this);
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -91,6 +95,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         bitmap = Bitmap.createScaledBitmap(b, 60, 100, false);
     }
 
+    private void addData(double longitude, double latitude, Date date, String response){
+        boolean isInserted = db.insertData(longitude, latitude, date, response);
+        if(isInserted){
+            Log.d("addData", "DATA INSERTED");
+        } else {
+            Log.d("addData", "DATA NOT INSERTED");
+        }
+    }
 
     @Override
     protected void onStart() {
@@ -284,7 +296,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-
+        try {
+            addData(thisMarker.getPosition().longitude, thisMarker.getPosition().longitude, new Date(), objectMapper.writeValueAsString(areaInformations));
+        } catch (JsonProcessingException e) {
+            Log.d("onScanButtonClick", "PARSING OF CLOB FAILED");
+        }
         loadingText.setVisibility(View.INVISIBLE);
         scanButton.setEnabled(true);
     }
