@@ -53,6 +53,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,10 +77,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker thisMarker;
     Bitmap bitmap;
     private static final Map<String, Integer> DISTANCE_THRESHOLD_MAPPING = new HashMap<>();
+    private Drawer navDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -89,6 +96,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.usericon);
         Bitmap b = bitmapdraw.getBitmap();
         bitmap = Bitmap.createScaledBitmap(b, 60, 100, false);
+
+        new DrawerBuilder().withActivity(this).build();
+        //if you want to update the items at a later time it is recommended to keep it in a variable
+        PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withName("Map");
+        PrimaryDrawerItem item2 = new PrimaryDrawerItem().withIdentifier(2).withName("Location History");
+
+        //create the drawer
+        navDrawer = new DrawerBuilder()
+                .withActivity(this)
+                .addDrawerItems(
+                        item1,
+                        new DividerDrawerItem(),
+                        item2
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+//                        setContentView(R.layout.location_history);
+                        return false;
+                    }
+                })
+                .build();
     }
 
 
@@ -385,5 +414,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void closeHelpContent(View view) {
         ConstraintLayout helpContentPanel = findViewById(R.id.helpContent);
         helpContentPanel.setVisibility(View.GONE);
+    }
+
+    public void openDrawer(View view) {
+        navDrawer.openDrawer();
     }
 }
