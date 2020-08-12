@@ -308,6 +308,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+
     /**
      * Exit button click listener
      */
@@ -318,6 +319,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         startActivity(intent);
         finish();
     }*/
+
 
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
