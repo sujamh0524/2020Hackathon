@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Build;
@@ -30,6 +31,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.testapp.model.AreaInformation;
 import com.example.testapp.model.LocationRequestModel;
+import com.example.testapp.model.ZoomAndDistanceModel;
 import com.example.testapp.service.MapsService;
 import com.example.testapp.util.GoogleMapUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,6 +46,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -83,9 +86,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.topviewman);
+        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.usericon);
         Bitmap b = bitmapdraw.getBitmap();
-        bitmap = Bitmap.createScaledBitmap(b, 110, 60, false);
+        bitmap = Bitmap.createScaledBitmap(b, 60, 100, false);
     }
 
 
@@ -177,10 +180,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 if(thisMarker != null) {
                     thisMarker.setPosition(latLng);
-                    thisMarker.setTitle("Latitude: " + locationResult.getLastLocation().getLatitude() + " Longitude: " + locationResult.getLastLocation().getLongitude());
+                    thisMarker.setTitle("You are here");
                 }else {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
-                    thisMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("Latitude: " + locationResult.getLastLocation().getLatitude() + " Longitude: " + locationResult.getLastLocation().getLongitude()).icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
+                    thisMarker = mMap.addMarker(new MarkerOptions().position(latLng).title("You are here").icon(BitmapDescriptorFactory.fromBitmap(bitmap)));
                 }
             }
         }
@@ -212,7 +215,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button scanButton = findViewById(R.id.scanBtn);
         TextView loadingText = findViewById(R.id.loadingText);
         Spinner spinner = findViewById(R.id.thresholdDropdown);
-        int dist = getDistance(spinner.getSelectedItem().toString());
+        ZoomAndDistanceModel zoomAndDistanceModel = getDistance(spinner.getSelectedItem().toString());
 
         loadingText.setVisibility(View.VISIBLE);
         scanButton.setEnabled(false);
@@ -220,8 +223,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         List<AreaInformation> areaInformations = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
         if(thisMarker != null) {
-            LocationRequestModel locationRequestModel = new LocationRequestModel(thisMarker.getPosition(), dist);
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(thisMarker.getPosition(), 18));
+            LocationRequestModel locationRequestModel = new LocationRequestModel(thisMarker.getPosition(), zoomAndDistanceModel.getDistance());
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(thisMarker.getPosition(), zoomAndDistanceModel.getZoom()));
+            CircleOptions circleOptions = new CircleOptions();
+            circleOptions.center(thisMarker.getPosition());
+            circleOptions.strokeWidth(4);
+            circleOptions.strokeColor(Color.argb(255, 0, 255 , 0));
+            circleOptions.fillColor(Color.argb(32, 0, 255 , 0));
+            circleOptions.radius(zoomAndDistanceModel.getDistance());
+            mMap.addCircle(circleOptions);
             mapsService.execute(locationRequestModel);
             try {
                 areaInformations.addAll(mapsService.get());
@@ -250,7 +260,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //alert
             alertDialog.setIcon(R.drawable.custom_marker);
             alertDialog.setTitle("Warning");
-            alertDialog.setMessage("You have " + numAreas + " number of hotspots within " + dist + " meters.");
+            alertDialog.setMessage("There are " + numAreas + " hotspot(s) within " + zoomAndDistanceModel.getDistance() + " meters. ");
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -269,7 +279,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             int notificationId = 12345;
             notificationManager.notify(notificationId, builder.build());
         } else {
-            alertDialog.setMessage("You are in a safe place!");
+            alertDialog.setMessage("You are safe within "+ zoomAndDistanceModel.getDistance() +" meters.");
             alertDialog.show();
         }
 
@@ -279,23 +289,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         scanButton.setEnabled(true);
     }
 
-    private int getDistance(String dropDownText){
-        int i = 0;
+    private ZoomAndDistanceModel getDistance(String dropDownText){
+        ZoomAndDistanceModel zoomAndDistanceModel = null;
         if(dropDownText.equalsIgnoreCase("500 m")){
-            i = 500;
+            zoomAndDistanceModel = new ZoomAndDistanceModel(500, 16);
         } else if (dropDownText.equalsIgnoreCase("1 km")){
-            i = 1000;
+            zoomAndDistanceModel = new ZoomAndDistanceModel(1000, 15f);
         } else if (dropDownText.equalsIgnoreCase("2 km")){
-            i = 2000;
+            zoomAndDistanceModel = new ZoomAndDistanceModel(2000, 14f);
         } else if (dropDownText.equalsIgnoreCase("3 km")){
-            i = 3000;
+            zoomAndDistanceModel = new ZoomAndDistanceModel(3000, 13.3f);
         } else if (dropDownText.equalsIgnoreCase("4 km")){
-            i = 4000;
+            zoomAndDistanceModel = new ZoomAndDistanceModel(4000, 13f);
         } else if (dropDownText.equalsIgnoreCase("5 km")){
-            i = 5000;
+            zoomAndDistanceModel = new ZoomAndDistanceModel(5000, 12.6f);
         }
-        return i;
+        return zoomAndDistanceModel;
     }
+
+
+
+    /**
+     * Exit button click listener
+     */
+    /*public void onExitButtonClick(View view) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }*/
+
 
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because

@@ -4,16 +4,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.util.Log;
 
 import com.example.testapp.R;
 import com.example.testapp.model.AreaInformation;
-import com.example.testapp.model.LocationObject;
-import com.example.testapp.service.MapsService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -52,7 +46,7 @@ public class GoogleMapUtil {
             circleOptions.strokeColor(Color.argb(255, 255, 0 , 0));
             circleOptions.fillColor(Color.argb(32, 255, 0 , 0));
             circleOptions.radius(200);
-            MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("Cases: " + l.getNumCases() + " City: " + l.getCity() +  " Barangay: " + l.getBaranggay());
+            MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("Cases: " + l.getActiveCovidCases() + " City: " + l.getCity() +  " Barangay: " + l.getBaranggay());
             Circle circle = mMap.addCircle(circleOptions);
             Marker marker = mMap.addMarker(markerOptions);
 
