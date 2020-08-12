@@ -24,7 +24,7 @@
         android:id="@+id/buttonPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="590dp"
+        android:layout_marginTop="540dp"
         android:background="#D3BED3D6"
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent">
@@ -83,7 +83,7 @@
         android:id="@+id/helpContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="450dp"
+        android:layout_marginBottom="400dp"
         android:background="#FFFFFF"
         android:clickable="true"
         android:focusable="true"
