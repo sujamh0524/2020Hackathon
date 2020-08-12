@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -82,14 +81,17 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/helpContent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="400dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="75dp"
+        android:layout_marginBottom="325dp"
         android:background="#FFFFFF"
         android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:visibility="visible"
-        map:layout_constraintBottom_toBottomOf="parent">
+        map:layout_constraintBottom_toBottomOf="parent"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/closeHelpBtn"
@@ -98,6 +100,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"
+            android:background="@null"
             android:onClick="closeHelpContent"
             android:src="@drawable/close_button"
             map:layout_constraintEnd_toEndOf="parent"
@@ -130,6 +133,29 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/burgerBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@null"
+        android:onClick="openDrawer"
+        android:src="@drawable/hamburger_white_icon"
+        map:layout_constraintStart_toStartOf="@+id/toolbar"
+        map:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
