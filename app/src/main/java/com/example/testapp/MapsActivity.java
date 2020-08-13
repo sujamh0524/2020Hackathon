@@ -38,8 +38,8 @@ import com.example.testapp.adapter.CustomTableDataAdapter;
 import com.example.testapp.adapter.CustomTableHeaderAdapter;
 import com.example.testapp.constant.AppConstants;
 import com.example.testapp.model.AreaInformation;
-import com.example.testapp.model.LocationHistoryModel;
 import com.example.testapp.model.LocationRequestModel;
+import com.example.testapp.model.SearchHistoryModel;
 import com.example.testapp.model.ZoomAndDistanceModel;
 import com.example.testapp.service.MapsService;
 import com.example.testapp.util.DatabaseHelper;
@@ -121,7 +121,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         new DrawerBuilder().withActivity(this).build();
         //if you want to update the items at a later time it is recommended to keep it in a variable
         PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(AppConstants.MAP_MENU).withName("Map");
-        PrimaryDrawerItem item2 = new PrimaryDrawerItem().withIdentifier(AppConstants.LOCATION_HISTORY_MENU).withName("Location History");
+        PrimaryDrawerItem item2 = new PrimaryDrawerItem().withIdentifier(AppConstants.SEARCH_HISTORY_MENU).withName("Search History");
+        PrimaryDrawerItem item3 = new PrimaryDrawerItem().withIdentifier(AppConstants.RISK_TRAVEL_HISTORY_MENU).withName("Risk Travel History");
 
         //create the drawer
         navDrawer = new DrawerBuilder()
@@ -129,7 +130,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .addDrawerItems(
                         item1,
                         new DividerDrawerItem(),
-                        item2
+                        item2,
+                        new DividerDrawerItem(),
+                        item3
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -434,8 +437,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void setVisibileComponents(int selectedMenu) {
         View mainContent = findViewById(R.id.mainContent);
-        View locationHistoryContent = findViewById(R.id.locationHistoryContent);
-        locationHistoryContent.setOnClickListener(new View.OnClickListener() {
+        View searchHistoryContent = findViewById(R.id.searchHistoryContent);
+        View riskTravelHistoryContent = findViewById(R.id.travelHistoryContent);
+
+        searchHistoryContent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 db = new DatabaseHelper(getBaseContext());
@@ -443,19 +448,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 //show db data
                 Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day') ORDER BY CREATED_DATE DESC", null);
-                List<LocationHistoryModel> locationHistoryModels = new ArrayList<>();
+                List<SearchHistoryModel> searchHistoryModels = new ArrayList<>();
                 while(cursor.moveToNext()){
                     List<Address> addresses = new ArrayList<>();
                     String address = "";
 
                     address = getAddress(cursor, addresses);
-                    addLocationHistoryModels(cursor, locationHistoryModels, address);
+                    addLocationHistoryModels(cursor, searchHistoryModels, address);
                 }
 
                 final String[] columnHeaders = { "Location in the past 15 days", "Search Distance", "Number of Active Cases" };
-                String[][] sampleData = new String[locationHistoryModels.size()][3];
+                String[][] sampleData = new String[searchHistoryModels.size()][3];
                 int counter = 0;
-                for(LocationHistoryModel model : locationHistoryModels){
+                for(SearchHistoryModel model : searchHistoryModels){
 
                     sampleData[counter][0] = model.getCreatedDate() + " - " + model.getLocation();
                     sampleData[counter][1] = model.getDistance();
@@ -489,15 +494,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 tableView.setDataAdapter(tableDataAdapter);
             }
         });
+
+        riskTravelHistoryContent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO Get data within 500 meters and with cases
+
+                final String[] columnHeaders = { "Location in the past 15 days", "Number of Active Cases" };
+                String[][] sampleData = new String[1][1];
+
+                TableView<String[]> travelHistTableView = (TableView<String[]>) view.findViewById(R.id.travel_history_table);
+                travelHistTableView.setHeaderBackgroundColor(Color.parseColor("#2ecc71"));
+                CustomTableHeaderAdapter tableHeaderAdapter = new CustomTableHeaderAdapter(getBaseContext(), columnHeaders);
+                tableHeaderAdapter.setPaddingRight(0);
+                travelHistTableView.setHeaderAdapter(tableHeaderAdapter);
+                travelHistTableView.setColumnCount(2);
+
+                CustomTableDataAdapter tableDataAdapter = new CustomTableDataAdapter(getBaseContext(), sampleData);
+                tableDataAdapter.setPaddingRight(0);
+                tableDataAdapter.setTextSize(12);
+                travelHistTableView.setDataAdapter(tableDataAdapter);
+            }
+        });
+
         switch (selectedMenu) {
             case AppConstants.MAP_MENU:
                 mainContent.setVisibility(View.VISIBLE);
-                locationHistoryContent.setVisibility(View.GONE);
+                searchHistoryContent.setVisibility(View.GONE);
+                riskTravelHistoryContent.setVisibility(View.GONE);
                 break;
-            case AppConstants.LOCATION_HISTORY_MENU:
-                locationHistoryContent.setVisibility(View.VISIBLE);
-                locationHistoryContent.callOnClick();
+            case AppConstants.SEARCH_HISTORY_MENU:
+                searchHistoryContent.setVisibility(View.VISIBLE);
+                searchHistoryContent.callOnClick();
                 mainContent.setVisibility(View.GONE);
+                riskTravelHistoryContent.setVisibility(View.GONE);
+                break;
+            case AppConstants.RISK_TRAVEL_HISTORY_MENU:
+                riskTravelHistoryContent.setVisibility(View.VISIBLE);
+                riskTravelHistoryContent.callOnClick();
+                mainContent.setVisibility(View.GONE);
+                searchHistoryContent.setVisibility(View.GONE);
                 break;
         }
     }
@@ -519,10 +555,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @SuppressLint("LongLogTag")
-    private void addLocationHistoryModels(Cursor cursor, List<LocationHistoryModel> locationHistoryModels, String address) {
+    private void addLocationHistoryModels(Cursor cursor, List<SearchHistoryModel> searchHistoryModels, String address) {
         try {
             Log.d("response: ", cursor.getString(5));
-            locationHistoryModels.add(new LocationHistoryModel(cursor.getString(0),
+            searchHistoryModels.add(new SearchHistoryModel(cursor.getString(0),
                     address,
                     cursor.getString(3)  + " meters",
                     cursor.getString(4),

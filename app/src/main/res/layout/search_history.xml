@@ -8,7 +8,7 @@
     <de.codecrafters.tableview.TableView
         android:id="@+id/table_view"
         android:layout_width="wrap_content"
-        android:layout_height="731dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="51dp"
