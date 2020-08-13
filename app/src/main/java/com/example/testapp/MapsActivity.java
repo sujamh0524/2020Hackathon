@@ -475,10 +475,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.d("location model: ",model.toString());
                     counter++;
                 }
-                /*String[][] sampleData = {
-                        { "8/12/2020 - Carmona", "1000 m", "Comasdaembo - 5, Dasmarinas - 6" },
-                        { "8/11/2020 - Carmona", "1000 m", "Comembo - 5, Dasmarinas - 6" }
-                };*/
 
                 TableView<String[]> tableView = (TableView<String[]>) view.findViewById(R.id.table_view);
                 tableView.setHeaderBackgroundColor(Color.parseColor("#2ecc71"));

@@ -10,7 +10,8 @@
         <item>5 km</item>
     </string-array>
     <string name="help_content_body">
-        1. Select max search distance in the Range dropdown.\n\n
-        2. Click Search to start finding hotspots near your location.
+        1. Select the "Range" for the search distance range in the drop down selection.\n\n
+        2. Click the "Search" button to find location\'s with active COVID-19 cases.\n\n
+        3. Click the menu button on the upper left corner of the screen to view your "Location History"
     </string>
 </resources>
