@@ -272,11 +272,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "TODO call web service...");
         // TODO Call web service and parse json
         Button scanButton = findViewById(R.id.scanBtn);
-        TextView loadingText = findViewById(R.id.loadingText);
         Spinner spinner = findViewById(R.id.thresholdDropdown);
         ZoomAndDistanceModel zoomAndDistanceModel = getDistance(spinner.getSelectedItem().toString());
 
-        loadingText.setVisibility(View.VISIBLE);
         scanButton.setEnabled(false);
         MapsService mapsService = new MapsService();
         List<AreaInformation> areaInformations = new ArrayList<>();
@@ -340,7 +338,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (JsonProcessingException e) {
             Log.d("onScanButtonClick", "PARSING OF CLOB FAILED");
         }
-        loadingText.setVisibility(View.INVISIBLE);
         scanButton.setEnabled(true);
     }
 
@@ -434,7 +431,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void setVisibileComponents(int selectedMenu) {
         View mainContent = findViewById(R.id.mainContent);
-        View locationHistoryContent = findViewById(R.id.locationHistoryContent);
+        View locationHistoryContent = findViewById(R.id.searchHistoryContent);
         locationHistoryContent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -478,13 +475,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 TableView<String[]> tableView = (TableView<String[]>) view.findViewById(R.id.table_view);
                 tableView.setHeaderBackgroundColor(Color.parseColor("#2ecc71"));
                 CustomTableHeaderAdapter tableHeaderAdapter = new CustomTableHeaderAdapter(getBaseContext(), columnHeaders);
-                tableHeaderAdapter.setPaddingRight(0);
+
                 tableHeaderAdapter.setTextSize(15);
                 tableView.setHeaderAdapter(tableHeaderAdapter);
                 tableView.setColumnCount(3);
 
                 CustomTableDataAdapter tableDataAdapter = new CustomTableDataAdapter(getBaseContext(), sampleData);
-                tableDataAdapter.setPaddingRight(0);
                 tableDataAdapter.setTextSize(12);
                 tableView.setDataAdapter(tableDataAdapter);
             }
@@ -495,6 +491,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 locationHistoryContent.setVisibility(View.GONE);
                 break;
             case AppConstants.LOCATION_HISTORY_MENU:
+
                 locationHistoryContent.setVisibility(View.VISIBLE);
                 locationHistoryContent.callOnClick();
                 mainContent.setVisibility(View.GONE);

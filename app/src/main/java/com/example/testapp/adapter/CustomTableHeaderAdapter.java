@@ -11,10 +11,10 @@ import de.codecrafters.tableview.TableHeaderAdapter;
 public class CustomTableHeaderAdapter extends TableHeaderAdapter {
 
     private final String[] headers;
-    private int paddingLeft = 20;
-    private int paddingTop = 30;
-    private int paddingRight = 20;
-    private int paddingBottom = 30;
+    private int paddingLeft = 0;
+    private int paddingTop = 0;
+    private int paddingRight = 0;
+    private int paddingBottom = 0;
     private int textSize = 18;
     private int typeface = Typeface.BOLD;
     private int textColor = 0x99000000;
