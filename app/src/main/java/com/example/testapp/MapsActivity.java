@@ -453,7 +453,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     addLocationHistoryModels(cursor, locationHistoryModels, address);
                 }
 
-                final String[] columnHeaders = { "Location in past 15 days", "Search Distance", "Number of Hotspots" };
+                final String[] columnHeaders = { "Location in the past 15 days", "Search Distance", "Number of Active Cases" };
                 String[][] sampleData = new String[locationHistoryModels.size()][3];
                 int counter = 0;
                 for(LocationHistoryModel model : locationHistoryModels){
@@ -484,11 +484,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 tableView.setHeaderBackgroundColor(Color.parseColor("#2ecc71"));
                 CustomTableHeaderAdapter tableHeaderAdapter = new CustomTableHeaderAdapter(getBaseContext(), columnHeaders);
                 tableHeaderAdapter.setPaddingRight(0);
+                tableHeaderAdapter.setTextSize(15);
                 tableView.setHeaderAdapter(tableHeaderAdapter);
                 tableView.setColumnCount(3);
 
                 CustomTableDataAdapter tableDataAdapter = new CustomTableDataAdapter(getBaseContext(), sampleData);
                 tableDataAdapter.setPaddingRight(0);
+                tableDataAdapter.setTextSize(12);
                 tableView.setDataAdapter(tableDataAdapter);
             }
         });
@@ -527,7 +529,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("response: ", cursor.getString(5));
             locationHistoryModels.add(new LocationHistoryModel(cursor.getString(0),
                     address,
-                    cursor.getString(3),
+                    cursor.getString(3)  + " meters",
                     cursor.getString(4),
                     new ObjectMapper().readValue(cursor.getString(5), new TypeReference<List<AreaInformation>>(){})));
         } catch (JsonProcessingException e) {

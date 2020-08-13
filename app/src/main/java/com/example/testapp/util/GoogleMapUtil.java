@@ -45,7 +45,7 @@ public class GoogleMapUtil {
             circleOptions.strokeWidth(4);
             circleOptions.strokeColor(Color.argb(255, 255, 0 , 0));
             circleOptions.fillColor(Color.argb(32, 255, 0 , 0));
-            circleOptions.radius(200);
+            circleOptions.radius(250);
             MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("Cases: " + l.getActiveCovidCases() + " City: " + l.getCity() +  " Barangay: " + l.getBaranggay());
             Circle circle = mMap.addCircle(circleOptions);
             Marker marker = mMap.addMarker(markerOptions);
