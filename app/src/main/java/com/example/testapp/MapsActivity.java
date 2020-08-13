@@ -104,8 +104,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         db = new DatabaseHelper(this);
         geocoder = new Geocoder(this, Locale.getDefault());
-        SQLiteDatabase sqLiteDatabase = db.getWritableDatabase();
-        db.onUpgrade(sqLiteDatabase,0,0);
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
