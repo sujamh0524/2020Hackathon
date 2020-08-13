@@ -10,7 +10,7 @@
         android:id="@+id/locationHistoryContent"
         android:name="com.example.testapp.fragment.LocationHistoryFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:visibility="gone" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
