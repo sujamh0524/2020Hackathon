@@ -104,6 +104,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         db = new DatabaseHelper(this);
         geocoder = new Geocoder(this, Locale.getDefault());
+        SQLiteDatabase sqLiteDatabase = db.getWritableDatabase();
+        db.onUpgrade(sqLiteDatabase,0,0);
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -467,7 +469,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     addLocationHistoryModels(cursor, locationHistoryModels, address);
                 }
 
-                final String[] columnHeaders = { "Past 15 days", "Search Distance", "Number of Hotspots" };
+                final String[] columnHeaders = { "Location in past 15 days", "Search Distance", "Number of Hotspots" };
                 String[][] sampleData = new String[locationHistoryModels.size()][3];
                 int counter = 0;
                 for(LocationHistoryModel model : locationHistoryModels){

@@ -11,7 +11,8 @@
         android:name="com.example.testapp.fragment.LocationHistoryFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainContent"
