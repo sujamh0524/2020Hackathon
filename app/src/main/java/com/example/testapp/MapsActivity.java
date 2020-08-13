@@ -310,7 +310,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
         if(numAreas > 0) {
             //alert
-            alertDialog.setIcon(R.drawable.custom_marker);
             alertDialog.setTitle("Warning");
             alertDialog.setMessage("There are " + numAreas + " hotspot(s) within " + zoomAndDistanceModel.getDistance() + " meters. ");
             alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",

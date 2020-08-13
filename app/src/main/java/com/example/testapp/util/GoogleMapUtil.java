@@ -37,7 +37,6 @@ public class GoogleMapUtil {
         dummyLocations.add(loc2);*/
 
         clearExistingMarkers();
-        Bitmap customIcon = getCustomIcon();
         for (AreaInformation l : areaInformations) {
             LatLng latLng = new LatLng(l.getLatitude(), l.getLongitude());
             CircleOptions circleOptions = new CircleOptions();
@@ -68,9 +67,4 @@ public class GoogleMapUtil {
         hotspotCircleList.clear();
     }
 
-    private static Bitmap getCustomIcon() {
-        BitmapDrawable bitmapdraw = (BitmapDrawable) ctx.getResources().getDrawable(R.drawable.custom_marker);
-        Bitmap b = bitmapdraw.getBitmap();
-        return Bitmap.createScaledBitmap(b, 150, 150, false);
-    }
 }
