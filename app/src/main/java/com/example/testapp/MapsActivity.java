@@ -500,13 +500,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View view) {
                 // TODO Get data within 500 meters and with cases
 
+                db = new DatabaseHelper(getBaseContext());
+                SQLiteDatabase database = db.getWritableDatabase();
+
+                //show db data
+                Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day') AND DISTANCE <= 500 ORDER BY CREATED_DATE DESC", null);
+                List<SearchHistoryModel> searchHistoryModels = new ArrayList<>();
+                while(cursor.moveToNext()){
+                    List<Address> addresses = new ArrayList<>();
+                    String address = "";
+
+                    address = getAddress(cursor, addresses);
+                    addLocationHistoryModels(cursor, searchHistoryModels, address);
+                }
+
                 final String[] columnHeaders = { "Location in the past 15 days", "Number of Active Cases" };
-                String[][] sampleData = new String[1][1];
+                String[][] sampleData = new String[searchHistoryModels.size()][2];
+
+                int counter = 0;
+                for(SearchHistoryModel model : searchHistoryModels){
+
+                    sampleData[counter][0] = model.getCreatedDate() + " - " + model.getLocation();
+                    int areaCounter = 0;
+                    for (AreaInformation areaInformation : model.getResponse()) {
+                        if(areaCounter > 0){
+                            sampleData[counter][1] += ", ";
+                            sampleData[counter][1] += areaInformation.getCity() + ", " + areaInformation.getBaranggay() + " - " + areaInformation.getActiveCovidCases();
+                        }
+                        else {
+                            sampleData[counter][1] = areaInformation.getCity() + ", " + areaInformation.getBaranggay() + " - " + areaInformation.getActiveCovidCases();
+                        }
+                        areaCounter++;
+                    }
+
+                    Log.d("location model: ", model.toString());
+                    counter++;
+                }
 
                 TableView<String[]> travelHistTableView = (TableView<String[]>) view.findViewById(R.id.travel_history_table);
                 travelHistTableView.setHeaderBackgroundColor(Color.parseColor("#2ecc71"));
                 CustomTableHeaderAdapter tableHeaderAdapter = new CustomTableHeaderAdapter(getBaseContext(), columnHeaders);
                 tableHeaderAdapter.setPaddingRight(0);
+                tableHeaderAdapter.setTextSize(15);
                 travelHistTableView.setHeaderAdapter(tableHeaderAdapter);
                 travelHistTableView.setColumnCount(2);
 
