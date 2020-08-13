@@ -32,7 +32,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.testapp.adapter.CustomTableDataAdapter;
@@ -483,7 +482,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     addLocationHistoryModels(cursor, locationHistoryModels, address);
                 }
 
-                // Hardcoded for now
                 final String[] columnHeaders = { "Past 15 days", "Search Distance", "Number of Hotspots" };
                 String[][] sampleData = new String[locationHistoryModels.size()][3];
                 int counter = 0;
