@@ -1,6 +1,7 @@
 package com.example.testapp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,6 +12,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,16 +32,20 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.testapp.adapter.CustomTableDataAdapter;
 import com.example.testapp.constant.AppConstants;
 import com.example.testapp.model.AreaInformation;
+import com.example.testapp.model.LocationHistoryModel;
 import com.example.testapp.model.LocationRequestModel;
 import com.example.testapp.model.ZoomAndDistanceModel;
 import com.example.testapp.service.MapsService;
 import com.example.testapp.util.DatabaseHelper;
 import com.example.testapp.util.GoogleMapUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -63,14 +70,19 @@ import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import de.codecrafters.tableview.TableView;
+import de.codecrafters.tableview.toolkit.SimpleTableHeaderAdapter;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -86,15 +98,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final Map<String, Integer> DISTANCE_THRESHOLD_MAPPING = new HashMap<>();
     private DatabaseHelper db;
     private Drawer navDrawer;
+    private Geocoder geocoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         db = new DatabaseHelper(this);
-
+        geocoder = new Geocoder(this, Locale.getDefault());
         SQLiteDatabase database = db.getWritableDatabase();
-        db.onUpgrade(database,0,0);
         //show db data
         Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day')", null);
         while(cursor.moveToNext()){
@@ -288,13 +300,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(thisMarker != null) {
             LocationRequestModel locationRequestModel = new LocationRequestModel(thisMarker.getPosition(), zoomAndDistanceModel.getDistance());
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(thisMarker.getPosition(), zoomAndDistanceModel.getZoom()));
-            CircleOptions circleOptions = new CircleOptions();
-            circleOptions.center(thisMarker.getPosition());
-            circleOptions.strokeWidth(4);
-            circleOptions.strokeColor(Color.argb(255, 0, 255 , 0));
-            circleOptions.fillColor(Color.argb(32, 0, 255 , 0));
-            circleOptions.radius(zoomAndDistanceModel.getDistance());
-            mMap.addCircle(circleOptions);
             mapsService.execute(locationRequestModel);
             try {
                 areaInformations.addAll(mapsService.get());
@@ -461,6 +466,63 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void setVisibileComponents(int selectedMenu) {
         View mainContent = findViewById(R.id.mainContent);
         View locationHistoryContent = findViewById(R.id.locationHistoryContent);
+        locationHistoryContent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                db = new DatabaseHelper(getBaseContext());
+                SQLiteDatabase database = db.getWritableDatabase();
+
+                //show db data
+                Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day')", null);
+                List<LocationHistoryModel> locationHistoryModels = new ArrayList<>();
+                while(cursor.moveToNext()){
+                    List<Address> addresses = new ArrayList<>();
+                    String address = "";
+
+                    address = getAddress(cursor, addresses);
+                    addLocationHistoryModels(cursor, locationHistoryModels, address);
+                }
+
+                // Hardcoded for now
+                final String[] columnHeaders = { "Past 15 days", "Search Distance", "Number of Hotspots" };
+                String[][] sampleData = new String[locationHistoryModels.size()][3];
+                int counter = 0;
+                for(LocationHistoryModel model : locationHistoryModels){
+
+                    sampleData[counter][0] = model.getCreatedDate() + " - " + model.getLocation();
+                    sampleData[counter][1] = model.getDistance();
+                    int areaCounter = 0;
+                    for (AreaInformation areaInformation : model.getResponse()) {
+                        if(areaCounter > 0){
+                            sampleData[counter][2] += ", ";
+                            sampleData[counter][2] += areaInformation.getCity() + ", " + areaInformation.getBaranggay() + " - " + areaInformation.getActiveCovidCases();
+                        }
+                        else {
+                            sampleData[counter][2] = areaInformation.getCity() + ", " + areaInformation.getBaranggay() + " - " + areaInformation.getActiveCovidCases();
+                        }
+                        areaCounter++;
+                    }
+
+                    Log.d("location model: ",model.toString());
+                    counter++;
+                }
+                /*String[][] sampleData = {
+                        { "8/12/2020 - Carmona", "1000 m", "Comasdaembo - 5, Dasmarinas - 6" },
+                        { "8/11/2020 - Carmona", "1000 m", "Comembo - 5, Dasmarinas - 6" }
+                };*/
+
+                TableView<String[]> tableView = (TableView<String[]>) view.findViewById(R.id.table_view);
+                tableView.setHeaderBackgroundColor(Color.parseColor("#2ecc71"));
+                SimpleTableHeaderAdapter tableHeaderAdapter = new SimpleTableHeaderAdapter(getBaseContext(), columnHeaders);
+                tableHeaderAdapter.setPaddingRight(0);
+                tableView.setHeaderAdapter(tableHeaderAdapter);
+                tableView.setColumnCount(3);
+
+                CustomTableDataAdapter tableDataAdapter = new CustomTableDataAdapter(getBaseContext(), sampleData);
+                tableDataAdapter.setPaddingRight(0);
+                tableView.setDataAdapter(tableDataAdapter);
+            }
+        });
         switch (selectedMenu) {
             case AppConstants.MAP_MENU:
                 mainContent.setVisibility(View.VISIBLE);
@@ -468,8 +530,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 break;
             case AppConstants.LOCATION_HISTORY_MENU:
                 locationHistoryContent.setVisibility(View.VISIBLE);
+                locationHistoryContent.callOnClick();
                 mainContent.setVisibility(View.GONE);
                 break;
+        }
+    }
+
+    private String getAddress(Cursor cursor, List<Address> addresses) {
+        String address;
+        try {
+            addresses = geocoder.getFromLocation(cursor.getDouble(2), cursor.getDouble(1), 1);
+        } catch (IOException e) {
+            Log.d("setVisibileComponents","ERROR");
+        }
+        if(addresses.size() > 0){
+            address = addresses.get(0).getLocality();
+            Log.d("onClick",address);
+        } else {
+            address = "Longitude: " + cursor.getDouble(1) + " Latitude: " + cursor.getDouble(2);
+        }
+        return address;
+    }
+
+    @SuppressLint("LongLogTag")
+    private void addLocationHistoryModels(Cursor cursor, List<LocationHistoryModel> locationHistoryModels, String address) {
+        try {
+            Log.d("response: ", cursor.getString(5));
+            locationHistoryModels.add(new LocationHistoryModel(cursor.getString(0),
+                    address,
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    new ObjectMapper().readValue(cursor.getString(5), new TypeReference<List<AreaInformation>>(){})));
+        } catch (JsonProcessingException e) {
+            Log.d("addLocationHistoryModels", "Error parsing Area Information");
         }
     }
 }
