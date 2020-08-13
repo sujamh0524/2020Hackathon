@@ -104,20 +104,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         db = new DatabaseHelper(this);
         geocoder = new Geocoder(this, Locale.getDefault());
-        SQLiteDatabase database = db.getWritableDatabase();
-        //show db data
-        Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day')", null);
-        while(cursor.moveToNext()){
-            Log.d("ID", cursor.getString(0));
-            Log.d("Longitude", ""+cursor.getDouble(1));
-            Log.d("Latitude", ""+cursor.getDouble(2));
-            Log.d("DISTANCE", cursor.getString(3));
-            Log.d("CREATED_DATE", cursor.getString(4));
-            Log.d("RESPONSE", cursor.getString(5));
-        }
-
-
-
         setContentView(R.layout.activity_maps);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -457,7 +443,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 SQLiteDatabase database = db.getWritableDatabase();
 
                 //show db data
-                Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day')", null);
+                Cursor cursor = database.rawQuery("SELECT*FROM LOCATION_HISTORY WHERE CREATED_DATE > datetime('now','-15 day') ORDER BY CREATED_DATE DESC", null);
                 List<LocationHistoryModel> locationHistoryModels = new ArrayList<>();
                 while(cursor.moveToNext()){
                     List<Address> addresses = new ArrayList<>();
@@ -527,7 +513,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("setVisibileComponents","ERROR");
         }
         if(addresses.size() > 0){
-            address = addresses.get(0).getLocality();
+            address = addresses.get(0).getAddressLine(0);
             Log.d("onClick",address);
         } else {
             address = "Longitude: " + cursor.getDouble(1) + " Latitude: " + cursor.getDouble(2);
