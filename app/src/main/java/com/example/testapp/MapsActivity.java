@@ -35,6 +35,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.testapp.adapter.CustomTableDataAdapter;
+import com.example.testapp.adapter.CustomTableHeaderAdapter;
 import com.example.testapp.constant.AppConstants;
 import com.example.testapp.model.AreaInformation;
 import com.example.testapp.model.LocationHistoryModel;
@@ -56,7 +57,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -81,7 +81,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import de.codecrafters.tableview.TableView;
-import de.codecrafters.tableview.toolkit.SimpleTableHeaderAdapter;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -378,20 +377,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return zoomAndDistanceModel;
     }
 
-
-
-    /**
-     * Exit button click listener
-     */
-    /*public void onExitButtonClick(View view) {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
-    }*/
-
-
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -511,7 +496,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 TableView<String[]> tableView = (TableView<String[]>) view.findViewById(R.id.table_view);
                 tableView.setHeaderBackgroundColor(Color.parseColor("#2ecc71"));
-                SimpleTableHeaderAdapter tableHeaderAdapter = new SimpleTableHeaderAdapter(getBaseContext(), columnHeaders);
+                CustomTableHeaderAdapter tableHeaderAdapter = new CustomTableHeaderAdapter(getBaseContext(), columnHeaders);
                 tableHeaderAdapter.setPaddingRight(0);
                 tableView.setHeaderAdapter(tableHeaderAdapter);
                 tableView.setColumnCount(3);
