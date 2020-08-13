@@ -69,6 +69,8 @@ import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import org.springframework.util.ObjectUtils;
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -275,11 +277,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "TODO call web service...");
         // TODO Call web service and parse json
         Button scanButton = findViewById(R.id.scanBtn);
-        TextView loadingText = findViewById(R.id.loadingText);
         Spinner spinner = findViewById(R.id.thresholdDropdown);
         ZoomAndDistanceModel zoomAndDistanceModel = getDistance(spinner.getSelectedItem().toString());
 
-        loadingText.setVisibility(View.VISIBLE);
         scanButton.setEnabled(false);
         MapsService mapsService = new MapsService();
         List<AreaInformation> areaInformations = new ArrayList<>();
@@ -343,7 +343,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (JsonProcessingException e) {
             Log.d("onScanButtonClick", "PARSING OF CLOB FAILED");
         }
-        loadingText.setVisibility(View.INVISIBLE);
+
         scanButton.setEnabled(true);
     }
 
@@ -523,14 +523,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     sampleData[counter][0] = model.getCreatedDate() + " - " + model.getLocation();
                     int areaCounter = 0;
                     for (AreaInformation areaInformation : model.getResponse()) {
-                        if(areaCounter > 0){
-                            sampleData[counter][1] += ", ";
-                            sampleData[counter][1] += areaInformation.getCity() + ", " + areaInformation.getBaranggay() + " - " + areaInformation.getActiveCovidCases();
+                        if(areaInformation.getActiveCovidCases() > 0) {
+                            if (areaCounter > 0) {
+                                sampleData[counter][1] += ", ";
+                                sampleData[counter][1] += areaInformation.getCity() + ", " + areaInformation.getBaranggay() + " - " + areaInformation.getActiveCovidCases();
+                            } else {
+                                sampleData[counter][1] = areaInformation.getCity() + ", " + areaInformation.getBaranggay() + " - " + areaInformation.getActiveCovidCases();
+                            }
+                            areaCounter++;
+                        }else {
+                            Log.d("WAAAAAA","WAAAA");
                         }
-                        else {
-                            sampleData[counter][1] = areaInformation.getCity() + ", " + areaInformation.getBaranggay() + " - " + areaInformation.getActiveCovidCases();
-                        }
-                        areaCounter++;
+
                     }
 
                     Log.d("location model: ", model.toString());
@@ -593,11 +597,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void addLocationHistoryModels(Cursor cursor, List<SearchHistoryModel> searchHistoryModels, String address) {
         try {
             Log.d("response: ", cursor.getString(5));
-            searchHistoryModels.add(new SearchHistoryModel(cursor.getString(0),
+            SearchHistoryModel searchHistoryModel = new SearchHistoryModel(cursor.getString(0),
                     address,
                     cursor.getString(3)  + " meters",
                     cursor.getString(4),
-                    new ObjectMapper().readValue(cursor.getString(5), new TypeReference<List<AreaInformation>>(){})));
+                    new ObjectMapper().readValue(cursor.getString(5), new TypeReference<List<AreaInformation>>(){}));
+            if(!searchHistoryModel.getResponse().isEmpty()) {
+                searchHistoryModels.add(searchHistoryModel);
+            }
         } catch (JsonProcessingException e) {
             Log.d("addLocationHistoryModels", "Error parsing Area Information");
         }
