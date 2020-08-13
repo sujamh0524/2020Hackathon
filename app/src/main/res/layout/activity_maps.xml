@@ -7,8 +7,16 @@
     android:background="#FFFFFF">
 
     <fragment
-        android:id="@+id/locationHistoryContent"
-        android:name="com.example.testapp.fragment.LocationHistoryFragment"
+        android:id="@+id/searchHistoryContent"
+        android:name="com.example.testapp.fragment.SearchHistoryFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" />
+
+    <fragment
+        android:id="@+id/travelHistoryContent"
+        android:name="com.example.testapp.fragment.TravelHistoryFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"

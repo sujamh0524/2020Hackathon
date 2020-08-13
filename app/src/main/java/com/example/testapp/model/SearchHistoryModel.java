@@ -1,10 +1,8 @@
 package com.example.testapp.model;
 
-import android.util.Log;
-
 import java.util.List;
 
-public class LocationHistoryModel {
+public class SearchHistoryModel {
 
 
     private String id;
@@ -13,7 +11,7 @@ public class LocationHistoryModel {
     private String createdDate;
     private List<AreaInformation> response;
 
-    public LocationHistoryModel(String id, String location, String distance, String createdDate, List<AreaInformation> response) {
+    public SearchHistoryModel(String id, String location, String distance, String createdDate, List<AreaInformation> response) {
         this.id = id;
         this.location = location;
         this.distance = distance;
